@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { EditorState, RichUtils } from "draft-js";
 import Editor from "@draft-js-plugins/editor";
 import createHighLightPlugin from "./plugins/highlightPlugin";
+import addLinkPlugin from "./plugins/addLinkPlugin";
 
 const highlightPlugin = createHighLightPlugin();
 
@@ -11,13 +12,35 @@ export class PageContainer extends Component {
     this.state = {
       editorState: EditorState.createEmpty(),
     };
-    this.plugins = [highlightPlugin];
+    this.plugins = [highlightPlugin, addLinkPlugin];
   }
 
   onChange = (editorState) => {
     this.setState({
       editorState,
     });
+  };
+
+  onAddLink = () => {
+    const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
+    const link = window.prompt("Paste the link ___");
+    if (!link) {
+      this.onChange(RichUtils.toggleLink(editorState, selection, null));
+      return "handled";
+    }
+    const content = editorState.getCurrentContent();
+    const contentWithEntity = content.createEntity("LINK", "MUTABLE", {
+      url: link,
+    });
+    const newEditorState = EditorState.push(
+      editorState,
+      contentWithEntity,
+      "create-entity"
+    );
+    const entityKey = contentWithEntity.getLastCreatedEntityKey();
+    this.onChange(RichUtils.toggleLink(newEditorState, selection, entityKey));
+    return "handled";
   };
 
   handleKeyCommand = (command) => {
@@ -63,25 +86,43 @@ export class PageContainer extends Component {
   render() {
     return (
       <div className="editorContainer">
-        <button className="underline" onClick={this.onUnderlineClick}>
+        <button
+          id="underline"
+          className="inline styleButton"
+          onClick={this.onUnderlineClick}
+        >
           U
         </button>
-        <button className="bold" onClick={this.onBoldClick}>
+        <button
+          id="bold"
+          className="inline styleButton"
+          onClick={this.onBoldClick}
+        >
           <b>B</b>
         </button>
-        <button className="italic" onClick={this.onItalicClick}>
+        <button
+          id="italic"
+          className="inline styleButton"
+          onClick={this.onItalicClick}
+        >
           <em>I</em>
         </button>
-        <button className="strikethrough" onClick={this.onStrikeThroughClick}>
+        <button
+          className="strikethrough inline styleButton"
+          onClick={this.onStrikeThroughClick}
+        >
           abc
         </button>
-        <button className="highlight">
+        <button className="highlight inline styleButton">
           <span
             style={{ backgroundColor: "yellow", padding: "0.3em" }}
             onClick={this.onHighlight}
           >
             H
           </span>
+        </button>
+        <button className="add-link" id="link_url" onClick={this.onAddLink}>
+          <i className="material-icons">attach_file</i>
         </button>
         <div className="editors">
           <Editor
