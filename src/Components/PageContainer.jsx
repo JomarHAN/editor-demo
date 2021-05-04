@@ -1,5 +1,9 @@
 import React, { Component } from "react";
-import { Editor, EditorState, RichUtils } from "draft-js";
+import { EditorState, RichUtils } from "draft-js";
+import Editor from "@draft-js-plugins/editor";
+import createHighLightPlugin from "./plugins/highlightPlugin";
+
+const highlightPlugin = createHighLightPlugin();
 
 export class PageContainer extends Component {
   constructor(props) {
@@ -7,6 +11,7 @@ export class PageContainer extends Component {
     this.state = {
       editorState: EditorState.createEmpty(),
     };
+    this.plugins = [highlightPlugin];
   }
 
   onChange = (editorState) => {
@@ -43,21 +48,46 @@ export class PageContainer extends Component {
     );
   };
 
+  onStrikeThroughClick = () => {
+    this.onChange(
+      RichUtils.toggleInlineStyle(this.state.editorState, "STRIKETHROUGH")
+    );
+  };
+
+  onHighlight = () => {
+    this.onChange(
+      RichUtils.toggleInlineStyle(this.state.editorState, "HIGHLIGHT")
+    );
+  };
+
   render() {
     return (
       <div className="editorContainer">
-        <button onClick={this.onUnderlineClick}>U</button>
-        <button onClick={this.onBoldClick}>
+        <button className="underline" onClick={this.onUnderlineClick}>
+          U
+        </button>
+        <button className="bold" onClick={this.onBoldClick}>
           <b>B</b>
         </button>
-        <button onClick={this.onItalicClick}>
+        <button className="italic" onClick={this.onItalicClick}>
           <em>I</em>
+        </button>
+        <button className="strikethrough" onClick={this.onStrikeThroughClick}>
+          abc
+        </button>
+        <button className="highlight">
+          <span
+            style={{ backgroundColor: "yellow", padding: "0.3em" }}
+            onClick={this.onHighlight}
+          >
+            H
+          </span>
         </button>
         <div className="editors">
           <Editor
             editorState={this.state.editorState}
             onChange={this.onChange}
-            handleKeyCommand={this.handleKeyCommand}
+            plugins={this.plugins}
           />
         </div>
       </div>
