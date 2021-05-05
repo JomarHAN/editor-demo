@@ -134,3 +134,42 @@ styleButton#bold {
   box-shadow: 2px 2px edf3f9;
   height: 2.25em;
 }
+
+.RichEditor-activeButton {
+	background-color: #feb47b;
+	color: white;
+}
+
+select {
+	padding: 0.5em;
+	border: none;
+	margin: 0.35em;
+	border-radius: 6px;
+	font-family: "Open Sans";
+	font-size: 13px;
+	height: 2.25em;
+}
+
+.toolbar {
+	text-align: center;
+	margin: 0.5em;
+	padding: 0.5em;
+}
+
+.styleButton,
+.RichEditor-styleButton {
+	padding: 0.5em;
+	background-image: linear-gradient(to bottom, #fdfbfb 0%, #ebedee 100%);
+	border: none;
+	margin: 0.35em;
+	width: 2.75em;
+	font-family: "Open Sans";
+	font-size: 13px;
+	height: 2.25em;
+	border-radius: 4px;
+}
+
+.RichEditor-activeButton {
+	background-color: #feb47b;
+	color: white;
+}
