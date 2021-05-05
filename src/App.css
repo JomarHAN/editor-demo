@@ -173,3 +173,11 @@ select {
 	background-color: #feb47b;
 	color: white;
 }
+
+.buttonMenu {
+  position: relative;
+  display: flex;
+  position: relative;
+  justify-content: space-around;
+  align-self: space-around;
+}

@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { EditorState, RichUtils } from "draft-js";
+import { EditorState, RichUtils, AtomicBlockUtils } from "draft-js";
 import Editor from "@draft-js-plugins/editor";
 import createHighLightPlugin from "./plugins/highlightPlugin";
 import addLinkPlugin from "./plugins/addLinkPlugin";
 import BlockStyleToolbar, {
   getBlockStyle,
 } from "./blockStyles/BlockStyleToolbar";
+import { mediaBlockRenderer } from "./entities/mediaBlockRenderer";
 
 const highlightPlugin = createHighLightPlugin();
 
@@ -17,6 +18,38 @@ export class PageContainer extends Component {
     };
     this.plugins = [highlightPlugin, addLinkPlugin];
   }
+
+  focus = () => this.refs.editor.focus();
+
+  onAddImage = (e) => {
+    e.preventDefault();
+    const editorState = this.state.editorState;
+    const urlValue = window.prompt("Paste Image Link");
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      "image",
+      "IMMUTABLE",
+      { src: urlValue }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity },
+      "create-entity"
+    );
+    this.setState(
+      {
+        editorState: AtomicBlockUtils.insertAtomicBlock(
+          newEditorState,
+          entityKey,
+          " "
+        ),
+      },
+      () => {
+        setTimeout(() => this.focus(), 0);
+      }
+    );
+  };
 
   toggleBlockType = (blockType) => {
     this.onChange(RichUtils.toggleBlockType(this.state.editorState, blockType));
@@ -93,7 +126,7 @@ export class PageContainer extends Component {
   render() {
     return (
       <div className="editorContainer">
-        <div className="toolbar">
+        <div className="buttonMenu">
           <BlockStyleToolbar
             editorState={this.state.editorState}
             onToggle={this.toggleBlockType}
@@ -133,6 +166,19 @@ export class PageContainer extends Component {
               H
             </span>
           </button>
+          <div className="inline styleButton" onClick={this.onAddImage}>
+            <i
+              className="material-icons"
+              style={{
+                fontSize: "16px",
+                textAlign: "center",
+                padding: "0px",
+                margin: "0px",
+              }}
+            >
+              image
+            </i>
+          </div>
           <button className="add-link" id="link_url" onClick={this.onAddLink}>
             <i className="material-icons">attach_file</i>
           </button>
@@ -143,6 +189,8 @@ export class PageContainer extends Component {
             editorState={this.state.editorState}
             onChange={this.onChange}
             plugins={this.plugins}
+            ref="editor"
+            blockRendererFn={mediaBlockRenderer}
           />
         </div>
       </div>
